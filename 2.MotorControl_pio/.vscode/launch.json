@@ -1,0 +1,47 @@
+// AUTOMATICALLY GENERATED FILE. PLEASE DO NOT MODIFY IT MANUALLY
+//
+// PIO Unified Debugger
+//
+// Documentation: https://docs.platformio.org/page/plus/debugging.html
+// Configuration: https://docs.platformio.org/page/projectconf/section_env_debug.html
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug",
+            "executable": "d:/repos/ControlDigitalAvanzado/2.MotorControl_pio/.pio/build/genericSTM32F401CB/firmware.elf",
+            "projectEnvName": "genericSTM32F401CB",
+            "toolchainBinDir": "C:/Users/camil/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "internalConsoleOptions": "openOnSessionStart",
+            "svdPath": "C:/Users/camil/.platformio/platforms/ststm32/misc/svd/STM32F401x.svd",
+            "preLaunchTask": {
+                "type": "PlatformIO",
+                "task": "Pre-Debug"
+            }
+        },
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug (skip Pre-Debug)",
+            "executable": "d:/repos/ControlDigitalAvanzado/2.MotorControl_pio/.pio/build/genericSTM32F401CB/firmware.elf",
+            "projectEnvName": "genericSTM32F401CB",
+            "toolchainBinDir": "C:/Users/camil/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "internalConsoleOptions": "openOnSessionStart",
+            "svdPath": "C:/Users/camil/.platformio/platforms/ststm32/misc/svd/STM32F401x.svd"
+        },
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug (without uploading)",
+            "executable": "d:/repos/ControlDigitalAvanzado/2.MotorControl_pio/.pio/build/genericSTM32F401CB/firmware.elf",
+            "projectEnvName": "genericSTM32F401CB",
+            "toolchainBinDir": "C:/Users/camil/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "internalConsoleOptions": "openOnSessionStart",
+            "svdPath": "C:/Users/camil/.platformio/platforms/ststm32/misc/svd/STM32F401x.svd",
+            "loadMode": "manual"
+        }
+    ]
+}
