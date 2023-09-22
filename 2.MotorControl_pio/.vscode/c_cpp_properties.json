@@ -8,8 +8,8 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "d:/repos/ControlDigitalAvanzado/2.MotorControl_pio/Inc",
-                "d:/repos/ControlDigitalAvanzado/2.MotorControl_pio/Src",
+                "d:/repos/ControlDigitalAvanzado/2.MotorControl_Pio/Inc",
+                "d:/repos/ControlDigitalAvanzado/2.MotorControl_Pio/Src",
                 "C:/Users/camil/.platformio/packages/framework-stm32cubef4/Drivers/CMSIS/Include",
                 "C:/Users/camil/.platformio/packages/framework-stm32cubef4/Drivers/CMSIS/Device/ST/STM32F4xx/Include",
                 "C:/Users/camil/.platformio/packages/framework-stm32cubef4/Drivers/STM32F4xx_HAL_Driver/Inc",
@@ -89,8 +89,8 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "d:/repos/ControlDigitalAvanzado/2.MotorControl_pio/Inc",
-                    "d:/repos/ControlDigitalAvanzado/2.MotorControl_pio/Src",
+                    "d:/repos/ControlDigitalAvanzado/2.MotorControl_Pio/Inc",
+                    "d:/repos/ControlDigitalAvanzado/2.MotorControl_Pio/Src",
                     "C:/Users/camil/.platformio/packages/framework-stm32cubef4/Drivers/CMSIS/Include",
                     "C:/Users/camil/.platformio/packages/framework-stm32cubef4/Drivers/CMSIS/Device/ST/STM32F4xx/Include",
                     "C:/Users/camil/.platformio/packages/framework-stm32cubef4/Drivers/STM32F4xx_HAL_Driver/Inc",
