@@ -29,26 +29,18 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-#include "stdbool.h"
-#include "string.h"
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN Private defines */
-#define UART1_RX_BUFFER_LEN 40
-extern volatile unsigned char uart1_rx_buffer[UART1_RX_BUFFER_LEN];
+
 /* USER CODE END Private defines */
 
 void MX_USART1_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-int _write(int file, char* ptr, int len);
-void UART1_RX_DMA_Clean(void);
-bool UART1_RX_DMA_Ready(void);
-void UART1_RX_DMA_StartReceive(void);
-void UART1_RX_DMA_StopReceive(void);
-void UART1_RX_DMA_Read(char* buffer);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

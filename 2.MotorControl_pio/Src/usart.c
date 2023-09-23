@@ -21,7 +21,7 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-// #include "stdbool.h"
+
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -144,52 +144,4 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle) {
 
 /* USER CODE BEGIN 1 */
 
-// Functions
-
-/**
- * @brief Callback for printf
- */
-int _write(int file, char* ptr, int len) {
-    // Clean busy flag from past transfer (Assuming that the past transfer is
-    // completed, to avoid interruptions usage).
-    huart1.gState = HAL_UART_STATE_READY;
-    // Transfer the printf string using DMA.
-    HAL_UART_Transmit_DMA(&huart1, (uint8_t*)ptr, len);
-    return len;
-}
-
-void UART1_RX_DMA_Clean(void) {
-
-    // memset not allowed due to volatile
-    // memset(uart1_rx_buffer, 0x00, uart1_rx_buffer_len);
-    for (int i = 0; i < UART1_RX_BUFFER_LEN; i++) {
-        uart1_rx_buffer[i] = 0x00;
-    }
-}
-
-bool UART1_RX_DMA_Ready(void) {
-
-    for (int i = 1; i < UART1_RX_BUFFER_LEN; i++) {
-        if (uart1_rx_buffer[i] == '\n') {
-            return true;
-        }
-    }
-    return false;
-}
-
-void UART1_RX_DMA_StartReceive(void) {
-    HAL_UART_Receive_DMA(&huart1, (unsigned char*)((uintptr_t)uart1_rx_buffer),
-        UART1_RX_BUFFER_LEN);
-}
-
-void UART1_RX_DMA_StopReceive(void) {
-    HAL_UART_DMAStop(&huart1);
-}
-
-void UART1_RX_DMA_Read(char* buffer) {
-    UART1_RX_DMA_StopReceive();
-    memcpy((void*)buffer, (void*)strtok((char*)uart1_rx_buffer, "\n"),
-        UART1_RX_BUFFER_LEN);
-    UART1_RX_DMA_Clean();
-}
 /* USER CODE END 1 */

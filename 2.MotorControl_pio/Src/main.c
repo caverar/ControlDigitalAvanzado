@@ -25,7 +25,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>
+
+#include "user_app.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,7 +58,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-volatile unsigned char uart1_rx_buffer[UART1_RX_BUFFER_LEN];
+
 /* USER CODE END 0 */
 
 /**
@@ -93,32 +94,17 @@ int main(void) {
     MX_TIM3_Init();
     MX_USART1_UART_Init();
     /* USER CODE BEGIN 2 */
-    // Enable Timers
-    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-    HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+    user_app_init();
 
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    int x = 0;
-    UART1_RX_DMA_Clean();
-    UART1_RX_DMA_StartReceive();
+    user_app_main();
     while (1) {
 
         /* USER CODE END WHILE */
-        if (UART1_RX_DMA_Ready()) {
-            UART1_RX_DMA_StopReceive();
-            char buffer[40];
-            UART1_RX_DMA_Read(buffer);
-            printf(strcat(buffer, "\n"));
-            UART1_RX_DMA_StartReceive();
 
-        } else {
-            printf("Hola Mundo: %d \n", x++);
-        }
-        HAL_Delay(500);
         /* USER CODE BEGIN 3 */
     }
     /* USER CODE END 3 */
