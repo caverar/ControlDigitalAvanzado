@@ -3,6 +3,8 @@
     "main.h": "c",
     "usart.h": "c",
     "stdbool.h": "c",
-    "user_uart1.h": "c"
+    "user_uart1.h": "c",
+    "string.h": "c",
+    "user_app.h": "c"
   }
 }

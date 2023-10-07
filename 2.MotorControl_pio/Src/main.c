@@ -27,6 +27,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "user_app.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -100,7 +101,7 @@ int main(void) {
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    user_app_main();
+    // user_app_main();
     while (1) {
 
         /* USER CODE END WHILE */

@@ -1,0 +1,10 @@
+%% Carga de datos
+segment ? 50
+identification_data = importdata("identification_data.txt")
+
+ident_u = identification_data(50:900,2);
+ident_omega = identification_data(50:900,3);
+
+validation_data = importdata("validation_data.txt")
+val_u = validation_data(50:900,2);
+val_omega= validation_data(50:900,3);
