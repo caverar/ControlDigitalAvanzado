@@ -2,6 +2,7 @@
 
 // Standard libraries
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 // BSP libraries
@@ -33,11 +34,38 @@ void user_app_init(void) {
     encoder_value_old = 0;
     trigger = 0;
     u = 0;
+    Kp = 1;
+    Ki = 1;
     printf("Start\n");
 }
 
+void string_parser(char* input) {
+
+    char* token;
+    char* saveptr;
+    char* saveptr2;
+    // Tokenize the string with the delimiter ","
+    token = strtok_r(input, ",", &saveptr);
+    // strcpy(inner_string, token);
+
+    // While for each token pair
+    while (token != NULL) {
+        // Tokenize the string with the delimiter "="
+        char* name = strtok_r(token, "=", &saveptr2);
+        char* value = strtok_r(NULL, "=", &saveptr2);
+        if (name != NULL && value != NULL) {
+            if (!strcmp(name, "Kp")) {
+                Kp = atof(value);
+            } else if (!strcmp(name, "Ki")) {
+                Ki = atof(value);
+            }
+            token = strtok_r(NULL, ",", &saveptr);
+        }
+    }
+}
+
 void user_app_interrupt(void) {
-    // trigger = 1;
+
 #ifdef IDENT_MODE
     get_motor_speed();
     if (k < 100) {
@@ -71,8 +99,8 @@ void user_app_interrupt(void) {
         k = 0;
     }
     set_motor_pwm(u);
-    if (k > 50)
-        printf("%d, %0.2f, %0.6f\n", k, u, omega);
+    printf("Kp=%0.2f,Ki=%0.2f\n", Kp, Ki);
+    // printf("%d, %0.2f, %0.6f\n", k, u, omega);
 
 #elif VALIDATION_DATA_MODE
 
@@ -98,13 +126,20 @@ void user_app_interrupt(void) {
     trigger = 2;
     DumpTrace();
 #endif
+    // UART Rx
+    if (UART1_RX_DMA_Ready()) {
+
+        UART1_RX_DMA_Read(rx_buffer);
+        // string_out = rx_buffer;
+        string_parser(rx_buffer);
+        UART1_RX_DMA_StartReceive();
+    }
 }
-char data_save[50];
+
 void user_app_main(void) {
     if (UART1_RX_DMA_Ready()) {
-        // char buffer[UART1_RX_BUFFER_LEN];
-        UART1_RX_DMA_Read(data_save);
-        printf(strcat(data_save, "\n"));
+        UART1_RX_DMA_Read(rx_buffer);
+        printf(strcat(rx_buffer, "\n"));
         UART1_RX_DMA_StartReceive();
     }
 }

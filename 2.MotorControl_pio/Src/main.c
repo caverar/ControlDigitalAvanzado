@@ -104,7 +104,7 @@ int main(void) {
     while (1) {
 
         /* USER CODE END WHILE */
-        user_app_main();
+        // user_app_main();
 
         /* USER CODE BEGIN 3 */
     }

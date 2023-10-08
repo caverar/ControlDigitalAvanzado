@@ -14,7 +14,7 @@ extern "C" {
 
 // Private defines
 #define UART1_RX_BUFFER_LEN 50
-#define UART_ITER_TIME_OUT 100000
+#define UART_ITER_TIME_OUT 100 // 500ms at 5ms per iteration
 // Private variables
 uint32_t uart1_rx_dma_ready_time_out_iter;
 volatile char uart1_rx_buffer[UART1_RX_BUFFER_LEN];
