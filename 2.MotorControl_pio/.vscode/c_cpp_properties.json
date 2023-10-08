@@ -176,6 +176,7 @@
                 "STM32F4xx",
                 "USE_HAL_DRIVER",
                 "F_CPU=84000000L",
+                "__PLATFORMIO_BUILD_DEBUG__",
                 ""
             ],
             "compilerPath": "C:/Users/camil/.platformio/packages/toolchain-gccarmnoneeabi/bin/arm-none-eabi-gcc.exe",

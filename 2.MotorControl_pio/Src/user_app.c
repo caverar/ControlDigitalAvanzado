@@ -5,7 +5,6 @@
 #include <string.h>
 
 // BSP libraries
-#include "stm32f4xx_hal.h"
 #include "tim.h"
 #include <dataAcq.h>
 // User libraries
@@ -34,6 +33,7 @@ void user_app_init(void) {
     encoder_value_old = 0;
     trigger = 0;
     u = 0;
+    printf("Start\n");
 }
 
 void user_app_interrupt(void) {
@@ -74,7 +74,7 @@ void user_app_interrupt(void) {
     if (k > 50)
         printf("%d, %0.2f, %0.6f\n", k, u, omega);
 
-#elif defined(VALIDATION_DATA_MODE)
+#elif VALIDATION_DATA_MODE
 
     get_motor_speed();
     if (k < 100) {
@@ -90,18 +90,21 @@ void user_app_interrupt(void) {
     set_motor_pwm(u);
     printf("%d, %0.2f, %0.6f\n", k, u, omega);
 
-#elif defined(CONTROL_MODE)
+#elif CONTROL_MODE
     printf("test");
 #endif
+
+#ifdef LOG_TO_STM32MONITOR
     trigger = 2;
     DumpTrace();
+#endif
 }
+char data_save[50];
 void user_app_main(void) {
-
     if (UART1_RX_DMA_Ready()) {
-        char buffer[40];
-        UART1_RX_DMA_Read(buffer);
-        printf(strcat(buffer, "\n"));
+        // char buffer[UART1_RX_BUFFER_LEN];
+        UART1_RX_DMA_Read(data_save);
+        printf(strcat(data_save, "\n"));
         UART1_RX_DMA_StartReceive();
     }
 }

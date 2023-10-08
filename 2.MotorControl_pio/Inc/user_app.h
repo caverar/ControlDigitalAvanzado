@@ -12,13 +12,15 @@ extern "C" {
 // User libraries
 
 // Private defines
-#define IDENT_MODE
-// #define VALIDATION_DATA_MODE
+#define IDENT_MODE // Uncomment to run the identification mode
+// #define VALIDATION_DATA_MODE // Uncomment to run the validation mode
+#define LOG_TO_STM32MONITOR // Uncomment to log data to stm32monitor
+// Encoder parameters
 #define GEAR_RATIO 20
 #define ENCODER_RESOLUTION 1440
 #define COUNTS_PER_REVOLUTION (float)(GEAR_RATIO * ENCODER_RESOLUTION)
-// Private variables
 
+// Private variables
 uint16_t k; // Iterator for the Control
 float omega; // Current Motor angular velocity
 float omega_old; // Past Motor angular velocity

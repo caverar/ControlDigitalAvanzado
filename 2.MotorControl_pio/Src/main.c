@@ -101,10 +101,10 @@ int main(void) {
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    // user_app_main();
     while (1) {
 
         /* USER CODE END WHILE */
+        user_app_main();
 
         /* USER CODE BEGIN 3 */
     }
