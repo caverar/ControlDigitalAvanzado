@@ -35,12 +35,16 @@ void user_app_init(void) {
     encoder_value_old = 0;
     trigger = 0;
     u = 0;
-    Kp = 1;
-    Ki = 1;
+    Kp = 0.74773;
+    Ki = 31.7677;
+    // Kp = 0.66821f; // Constante proporcional
+    // Ki = 70.4747f;
     e = 0;
     e_old = 0;
     u_old = 0;
     r = 0;
+    min_ref = 0.7f;
+    max_ref = 1.2f;
 }
 
 void user_app_interrupt(void) {
@@ -66,10 +70,10 @@ void user_app_interrupt(void) {
 
     // Reference
     if (k < 100) {
-        r = 0.6f;
+        r = min_ref;
         k++;
     } else if (k < 200) {
-        r = 0.8f;
+        r = max_ref;
         k++;
     } else {
         k = 0;
@@ -79,13 +83,19 @@ void user_app_interrupt(void) {
     // Control Law (Proportional + Integral)
     u = ((Kp + (Ki * Ts)) * e) - (Kp * e_old) + u_old;
 
+    // Anti-windup
+    if (u > 1) {
+        u = 1;
+    } else if (u < -1) {
+        u = -1;
+    }
     // Save past values
     u_old = u;
     e_old = e;
     omega_old = omega;
 
     set_motor_pwm(u);
-    printf("%d, %0.2f, %0.8f\n", k, r, omega);
+    printf("%0.2f, %0.2f, %0.8f\n", r, u, omega);
 
 #endif
 
@@ -169,6 +179,10 @@ void string_parser(char* input) {
                 Kp = atof(value);
             } else if (!strcmp(name, "Ki")) {
                 Ki = atof(value);
+            } else if (!strcmp(name, "min_ref")) {
+                min_ref = atof(value);
+            } else if (!strcmp(name, "max_ref")) {
+                max_ref = atof(value);
             }
             token = strtok_r(NULL, ",", &saveptr);
         }

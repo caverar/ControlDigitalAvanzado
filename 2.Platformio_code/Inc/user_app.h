@@ -19,8 +19,8 @@ extern "C" {
 #define CONTROL_MODE // Uncomment to run the control mode
 
 // extra features
-// #define LOG_TO_STM32MONITOR // Uncomment to log data to stm32monitor
-// #define PARAMETER_TUNING_MODE // Uncomment to allow parameter tuning by UART
+#define LOG_TO_STM32MONITOR // Uncomment to log data to stm32monitor
+#define PARAMETER_TUNING_MODE // Uncomment to allow parameter tuning by UART
 
 // Encoder parameters
 #define GEAR_RATIO 20
@@ -43,6 +43,8 @@ float u; // Control action over motor
 
 // Control parameters
 float r; // Reference
+float min_ref; // Minimum reference
+float max_ref; // Maximum reference
 float e; // Error
 float e_old; // Past error
 float u_old; // Past control action
@@ -54,6 +56,7 @@ void user_app_init(void);
 void user_app_interrupt(void);
 void user_app_main(void);
 
+void string_parser(char* input);
 void set_motor_pwm(float value);
 void get_motor_speed(void);
 
