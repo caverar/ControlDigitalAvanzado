@@ -13,9 +13,15 @@ extern "C" {
 #include "user_uart1.h"
 
 // Private defines
-#define IDENT_MODE // Uncomment to run the identification mode
-// #define VALIDATION_DATA_MODE // Uncomment to run the validation mode
-#define LOG_TO_STM32MONITOR // Uncomment to log data to stm32monitor
+
+// Execution Mode selection (exclusive)
+// #define IDENT_MODE // Uncomment to run the identification mode
+#define CONTROL_MODE // Uncomment to run the control mode
+
+// extra features
+// #define LOG_TO_STM32MONITOR // Uncomment to log data to stm32monitor
+// #define PARAMETER_TUNING_MODE // Uncomment to allow parameter tuning by UART
+
 // Encoder parameters
 #define GEAR_RATIO 20
 #define ENCODER_RESOLUTION 1440
@@ -34,7 +40,12 @@ uint16_t encoder_value; // Current encoder count value
 uint16_t encoder_value_old; // Past encoder count value
 uint8_t trigger; // Trigger for stm32monitor
 float u; // Control action over motor
+
 // Control parameters
+float r; // Reference
+float e; // Error
+float e_old; // Past error
+float u_old; // Past control action
 float Kp; // Proportional gain
 float Ki; // Integral gain
 

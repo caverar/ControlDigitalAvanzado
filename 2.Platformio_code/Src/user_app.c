@@ -21,11 +21,12 @@ void user_app_init(void) {
     // Config Systick interruption Frequency
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq() / 200); // 5ms
 
+#ifdef PARAMETER_TUNING_MODE
     // Start UART DMA reception
     UART1_RX_DMA_Clean();
     UART1_RX_DMA_StartReceive();
-
-    // Variables initialization
+#endif
+    // Variable initialization
     k = 0;
     omega = 0;
     omega_old = 0;
@@ -36,32 +37,10 @@ void user_app_init(void) {
     u = 0;
     Kp = 1;
     Ki = 1;
-    printf("Start\n");
-}
-
-void string_parser(char* input) {
-
-    char* token;
-    char* saveptr;
-    char* saveptr2;
-    // Tokenize the string with the delimiter ","
-    token = strtok_r(input, ",", &saveptr);
-    // strcpy(inner_string, token);
-
-    // While for each token pair
-    while (token != NULL) {
-        // Tokenize the string with the delimiter "="
-        char* name = strtok_r(token, "=", &saveptr2);
-        char* value = strtok_r(NULL, "=", &saveptr2);
-        if (name != NULL && value != NULL) {
-            if (!strcmp(name, "Kp")) {
-                Kp = atof(value);
-            } else if (!strcmp(name, "Ki")) {
-                Ki = atof(value);
-            }
-            token = strtok_r(NULL, ",", &saveptr);
-        }
-    }
+    e = 0;
+    e_old = 0;
+    u_old = 0;
+    r = 0;
 }
 
 void user_app_interrupt(void) {
@@ -69,63 +48,52 @@ void user_app_interrupt(void) {
 #ifdef IDENT_MODE
     get_motor_speed();
     if (k < 100) {
-        u = 0.5f;
+        u = 0.6f;
         k++;
     } else if (k < 200) {
-        u = 0.9f;
-        k++;
-    } else if (k < 300) {
-        u = 0.5f;
-        k++;
-    } else if (k < 400) {
-        u = 0.9f;
-        k++;
-    } else if (k < 500) {
-        u = 0.5f;
-        k++;
-    } else if (k < 600) {
-        u = 0.9f;
-        k++;
-    } else if (k < 700) {
-        u = 0.5f;
-        k++;
-    } else if (k < 800) {
-        u = 0.9f;
-        k++;
-    } else if (k < 900) {
-        u = 0.5f;
+        u = 0.8f;
         k++;
     } else {
         k = 0;
     }
     set_motor_pwm(u);
-    printf("Kp=%0.2f,Ki=%0.2f\n", Kp, Ki);
-    // printf("%d, %0.2f, %0.6f\n", k, u, omega);
+    // printf("Kp=%0.2f,Ki=%0.2f\n", Kp, Ki);
+    printf("%d, %0.2f, %0.8f\n", k, u, omega);
 
-#elif VALIDATION_DATA_MODE
+#elif defined(CONTROL_MODE)
 
     get_motor_speed();
+
+    // Reference
     if (k < 100) {
-        u = 0.4f;
+        r = 0.6f;
         k++;
     } else if (k < 200) {
-        u = 0.7f;
+        r = 0.8f;
         k++;
     } else {
         k = 0;
     }
+    // Comparator (Error)
+    e = r - omega;
+    // Control Law (Proportional + Integral)
+    u = ((Kp + (Ki * Ts)) * e) - (Kp * e_old) + u_old;
+
+    // Save past values
+    u_old = u;
+    e_old = e;
+    omega_old = omega;
 
     set_motor_pwm(u);
-    printf("%d, %0.2f, %0.6f\n", k, u, omega);
+    printf("%d, %0.2f, %0.8f\n", k, r, omega);
 
-#elif CONTROL_MODE
-    printf("test");
 #endif
 
 #ifdef LOG_TO_STM32MONITOR
     trigger = 2;
     DumpTrace();
 #endif
+#ifdef PARAMETER_TUNING_MODE
     // UART Rx
     if (UART1_RX_DMA_Ready()) {
 
@@ -134,6 +102,7 @@ void user_app_interrupt(void) {
         string_parser(rx_buffer);
         UART1_RX_DMA_StartReceive();
     }
+#endif
 }
 
 void user_app_main(void) {
@@ -159,6 +128,7 @@ void set_motor_pwm(float value) {
         TIM2->CCR2 = -1000;
     }
 }
+
 void get_motor_speed(void) {
 
     encoder_value = TIM3->CNT;
@@ -178,4 +148,29 @@ void get_motor_speed(void) {
 
     encoder_value_old = encoder_value;
     omega_old = omega;
+}
+
+void string_parser(char* input) {
+
+    char* token;
+    char* saveptr;
+    char* saveptr2;
+    // Tokenize the string with the delimiter ","
+    token = strtok_r(input, ",", &saveptr);
+    // strcpy(inner_string, token);
+
+    // While for each token pair
+    while (token != NULL) {
+        // Tokenize the string with the delimiter "="
+        char* name = strtok_r(token, "=", &saveptr2);
+        char* value = strtok_r(NULL, "=", &saveptr2);
+        if (name != NULL && value != NULL) {
+            if (!strcmp(name, "Kp")) {
+                Kp = atof(value);
+            } else if (!strcmp(name, "Ki")) {
+                Ki = atof(value);
+            }
+            token = strtok_r(NULL, ",", &saveptr);
+        }
+    }
 }
