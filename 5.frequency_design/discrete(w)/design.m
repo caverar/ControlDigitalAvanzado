@@ -53,6 +53,17 @@ final_ctrl_tf_z=series(lead_ctrl_tf_z,pre_ctrl_z);
 step(feedback(series(final_ctrl_tf_z,plant_tf_z),1))
 
 
+%% Diference Equations
+
+%nagative powers and coeff simplify
+[num,den] = tfdata(zpk(final_ctrl_tf_z));
+arrayNum = cell2mat(num);
+arrayDen = cell2mat(den);
+final_ctrl_tf_neg_z = tf(arrayNum,arrayDen,Ts,"variable",'z^-1');
+
+
+
+
 %% Control Design (Lag)
 %required_pm = 40+6+(34.3);
 %w_crossover_current_phase = 180-required_pm;
