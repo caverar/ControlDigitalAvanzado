@@ -35,16 +35,34 @@ void user_app_init(void) {
     encoder_value_old = 0;
     trigger = 0;
     u = 0;
-    Kp = 0.74773;
-    Ki = 31.7677;
-    // Kp = 0.66821f; // Constante proporcional
-    // Ki = 70.4747f;
+    u_old1 = 0;
+    u_old2 = 0;
+    u_old3 = 0;
+    u_old4 = 0;
     e = 0;
-    e_old = 0;
-    u_old = 0;
+    e_old1 = 0;
+    e_old2 = 0;
+    e_old3 = 0;
+    e_old4 = 0;
     r = 0;
     min_ref = 0.7f;
     max_ref = 1.2f;
+
+    // PI
+    Kp = 0.74773;
+    Ki = 31.7677;
+    // 2x lead compensators in w
+    a0 = 0;
+    a1 = 0;
+    a2 = 0.2718;
+    a3 = -0.5012;
+    a4 = 0.2308;
+    b0 = 1;
+    b1 = -2.416;
+    b2 = 1.8;
+    b3 = -0.3513;
+    b4 = -0.03255;
+    sel_ctrl = 0;
 }
 
 void user_app_interrupt(void) {
@@ -68,32 +86,66 @@ void user_app_interrupt(void) {
 
     get_motor_speed();
 
-    // Reference
-    if (k < 100) {
-        r = min_ref;
-        k++;
-    } else if (k < 200) {
-        r = max_ref;
-        k++;
-    } else {
-        k = 0;
-    }
-    // Comparator (Error)
-    e = r - omega;
-    // Control Law (Proportional + Integral)
-    u = ((Kp + (Ki * Ts)) * e) - (Kp * e_old) + u_old;
+    if (sel_ctrl == 0) { // PI
 
-    // Anti-windup
-    if (u > 1) {
-        u = 1;
-    } else if (u < -1) {
-        u = -1;
-    }
-    // Save past values
-    u_old = u;
-    e_old = e;
-    omega_old = omega;
+        // Reference
+        if (k < 100) {
+            r = min_ref;
+            k++;
+        } else if (k < 200) {
+            r = max_ref;
+            k++;
+        } else {
+            k = 0;
+        }
+        // Comparator (Error)
+        e = r - omega;
+        // Control Law (Proportional + Integral)
+        u = ((Kp + (Ki * Ts)) * e) - (Kp * e_old1) + u_old1;
 
+        // Anti-windup
+        if (u > 1) {
+            u = 1;
+        } else if (u < -1) {
+            u = -1;
+        }
+        // Save past values
+        u_old1 = u;
+        e_old1 = e;
+        omega_old = omega;
+    } else if (sel_ctrl == 1) { // 2x lead compensators in w
+        // Reference
+        if (k < 200) {
+            r = min_ref;
+            k++;
+        } else if (k < 400) {
+            r = max_ref;
+            k++;
+        } else {
+            k = 0;
+        }
+        // Comparator (Error)
+        e = r - omega;
+        // Control Law (2 integrators plus 2 lead compensators)
+        u = (((a0 * e + a1 * e_old1 + a2 * e_old2 + a3 * e_old3 + a4 * e_old4)
+                - (b1 * u_old1 + b2 * u_old2 + b3 * u_old3 + b4 * u_old4)))
+            / b0;
+        // Anti-windup
+        if (u > 1) {
+            u = 1;
+        } else if (u < -1) {
+            u = -1;
+        }
+        // Save past values
+        u_old4 = u_old3;
+        u_old3 = u_old2;
+        u_old2 = u_old1;
+        u_old1 = u;
+        e_old4 = e_old3;
+        e_old3 = e_old2;
+        e_old2 = e_old1;
+        e_old1 = e;
+    }
     set_motor_pwm(u);
     printf("%0.2f, %0.2f, %0.8f\n", r, u, omega);
 
@@ -108,7 +160,6 @@ void user_app_interrupt(void) {
     if (UART1_RX_DMA_Ready()) {
 
         UART1_RX_DMA_Read(rx_buffer);
-        // string_out = rx_buffer;
         string_parser(rx_buffer);
         UART1_RX_DMA_StartReceive();
     }
@@ -183,6 +234,8 @@ void string_parser(char* input) {
                 min_ref = atof(value);
             } else if (!strcmp(name, "max_ref")) {
                 max_ref = atof(value);
+            } else if (!strcmp(name, "sel_ctrl")) {
+                sel_ctrl = atoi(value);
             }
             token = strtok_r(NULL, ",", &saveptr);
         }

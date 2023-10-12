@@ -39,18 +39,30 @@ float theta; // Current Motor angular position
 uint16_t encoder_value; // Current encoder count value
 uint16_t encoder_value_old; // Past encoder count value
 uint8_t trigger; // Trigger for stm32monitor
-float u; // Control action over motor
+uint8_t sel_ctrl;
 
-// Control parameters
+// Control parameters (General)
 float r; // Reference
 float min_ref; // Minimum reference
 float max_ref; // Maximum reference
+float u; // Control action over motor
+float u_old1; // Past control action
+float u_old2; // Past past control action
+float u_old3; // Past past past control action
+float u_old4; // Past past past past control action
 float e; // Error
-float e_old; // Past error
-float u_old; // Past control action
+float e_old1; // Past error
+float e_old2; // Past past error
+float e_old3; // Past past past error
+float e_old4; // Past past past past error
+
+// Control parameters (PI)
 float Kp; // Proportional gain
 float Ki; // Integral gain
 
+// Control parameters (2xLead compensator in w)
+float a0, a1, a2, a3, a4; // numerator coefficients
+float b0, b1, b2, b3, b4; // denominator coefficients
 // Function prototypes
 void user_app_init(void);
 void user_app_interrupt(void);

@@ -1,5 +1,5 @@
 ---
 BasedOnStyle: WebKit
 BreakBeforeBraces: Attach
-
-...
+ColumnLimit: 80
+IndentPPDirectives: BeforeHash

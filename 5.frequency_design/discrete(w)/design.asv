@@ -69,9 +69,7 @@ step(feedback(series(final_ctrl_tf_z,plant_tf_z),1))
 arrayNum = cell2mat(num);
 arrayDen = cell2mat(den);
 final_ctrl_tf_neg_z = tf(arrayNum,arrayDen,Ts,"variable",'z^-1');
-[final_num,final_den] = tfdata(final_ctrl_tf_neg_z);
-arrayFinalNum = cell2mat(final_num);
-arrayFinalDen = cell2mat(final_den);
+[final_num,final_den] = tfdata(final_ctrl_tf_neg_z)
 
 
 
