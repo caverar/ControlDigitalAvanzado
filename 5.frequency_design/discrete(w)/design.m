@@ -26,7 +26,7 @@ pre_ctrl_z = k/((z-1)^2);
 prectrl_plant_tf_z = series(pre_ctrl_z,plant_tf_z);
 bode(prectrl_plant_tf_z);
 %step(feedback(precontrolled_plant_tf,1))
- 
+
 %% W Transform
 prectrl_plant_tf_w = w_transform.z2w(prectrl_plant_tf_z,Ts);
 %bode(prectrl_plant_tf_z);
@@ -53,6 +53,7 @@ T2=1/(sqrt(b)*w_crossover);
 lead_ctrl2_tf_w = (1+(b*T2*s))/(1+(T2*s));
 k2=1.3;
 bode(series(k2*lead_ctrl2_tf_w,(series(lead_ctrl_tf_w,prectrl_plant_tf_w))))
+step(feedback(series(k2*lead_ctrl2_tf_w,(series(lead_ctrl_tf_w,prectrl_plant_tf_w))),1))
 %% Inverse w Transform
 lead_ctrl_tf_z = w_transform.w2z(k2*series(lead_ctrl_tf_w,lead_ctrl2_tf_w),Ts);
 bode(lead_ctrl_tf_z)
@@ -73,8 +74,7 @@ final_ctrl_tf_neg_z = tf(arrayNum,arrayDen,Ts,"variable",'z^-1');
 arrayFinalNum = cell2mat(final_num);
 arrayFinalDen = cell2mat(final_den);
 
-
-
+final_ctrl_tf_neg_z
 %% Control Design (Lag)
 %required_pm = 40+6+(34.3);
 %w_crossover_current_phase = 180-required_pm;
