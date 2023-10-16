@@ -1,19 +1,27 @@
 #include "user_app.h"
 
-// Standard libraries
+// Includes *******************************************************************
+
+// Standard libraries ---------------------------------------------------------
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-// BSP libraries
+// BSP libraries --------------------------------------------------------------
 #include "tim.h"
 #include <dataAcq.h>
-// User libraries
+// User libraries -------------------------------------------------------------
 #include "user_uart1.h"
 
-// Function implementations
-// Peripheral configuration
+// Function implementations ***************************************************
+
+/**
+ * @brief  This function is executed once at the beginning of the program, it
+ * contains the peripheral configuration and the variable initialization.
+ * @param  None
+ * @retval None
+ */
 void user_app_init(void) {
+    // Peripheral configuration
     // Enable Timers
     HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
@@ -28,43 +36,55 @@ void user_app_init(void) {
 #endif
     // Variable initialization
     k = 0;
+    trigger = 0;
+
+    // Process variables
     omega = 0;
     omega_old = 0;
     theta = 0;
     encoder_value = 0;
     encoder_value_old = 0;
-    trigger = 0;
-    u = 0;
-    u_old1 = 0;
-    u_old2 = 0;
-    u_old3 = 0;
-    u_old4 = 0;
-    e = 0;
-    e_old1 = 0;
-    e_old2 = 0;
-    e_old3 = 0;
-    e_old4 = 0;
-    r = 0;
-    min_ref = 0.7f;
-    max_ref = 1.2f;
+    u = 0.0, u_old1 = 0.0, u_old2 = 0.0, u_old3 = 0.0, u_old4 = 0.0;
+    e = 0.0, e_old1 = 0.0, e_old2 = 0.0, e_old3 = 0.0, e_old4 = 0.0;
 
-    // PI
+    // Reference parameters
+    selected_reference = SQUARE;
+    r = 0.0;
+    min_ref = 0.7f;
+    max_ref = 1.4f;
+    ref_period_seconds = 4; // 0.25HZ same as simulation.
+    ref_period_samples = (uint16_t)(ref_period_seconds / Ts);
+
+    // Controllers
+    selected_controller = PI_ZOH;
+    // PI_ZOH
     Kp = 0.74773;
     Ki = 31.7677;
-    // 2x lead compensators in w
-    a0 = 0;
-    a1 = 0;
-    a2 = 0.2718;
-    a3 = -0.5012;
-    a4 = 0.2308;
-    b0 = 1;
-    b1 = -2.416;
-    b2 = 1.8;
-    b3 = -0.3513;
-    b4 = -0.03255;
-    sel_ctrl = 0;
+    // LC_W
+    l1 = 0.0, l1_old1 = 0.0, l1_old2 = 0.0;
+    l2 = 0.0, l2_old1 = 0.0, l2_old2 = 0.0;
+    lcw_c1_a0 = 21.66, lcw_c1_a1 = -20.6;
+    lcw_c1_b0 = 1.0, lcw_c1_b1 = 0.06731;
+    lcw_c2_a0 = 6.273, lcw_c2_a1 = -5.602;
+    lcw_c2_b0 = 1.0, lcw_c2_b1 = -0.4837;
+    lcw_i_a0 = 0.0, lcw_i_a1 = 0.0, lcw_i_a2 = 0.002;
+    lcw_i_b0 = 1.0, lcw_i_b1 = -2.0, lcw_i_b2 = 1.0;
+    // LC_S_FOH
+    l = 0, l_old1 = 0, l_old2 = 0;
+    lcs_c_a0 = 600.7, lcs_c_a1 = -593.7;
+    lcs_c_b0 = 1, lcs_c_b1 = -30.62;
+    lcs_i_a0 = 1.25e-05, lcs_i_a1 = 2.5e-05, lcs_i_a2 = 1.25e-05;
+    lcs_i_b0 = 1, lcs_i_b1 = -2, lcs_i_b2 = 1;
 }
 
+/**
+ * @brief  This function is executed at each systick interruption, it contains
+ * the encoder reading, the reference generator, the control algorithm, the pwm
+ * set, the stm32monitor buffering, an UART parser for parameter tuning, and an
+ * UART print for data visualization.
+ * @param  None
+ * @retval None
+ */
 void user_app_interrupt(void) {
 
 #ifdef IDENT_MODE
@@ -76,29 +96,53 @@ void user_app_interrupt(void) {
         u = 0.8f;
         k++;
     } else {
+        u = 0.6f;
         k = 0;
     }
     set_motor_pwm(u);
-    // printf("Kp=%0.2f,Ki=%0.2f\n", Kp, Ki);
     printf("%d, %0.2f, %0.8f\n", k, u, omega);
 
 #elif defined(CONTROL_MODE)
 
     get_motor_speed();
-
-    if (sel_ctrl == 0) { // PI
-
-        // Reference
-        if (k < 100) {
+    // Reference
+    switch (selected_reference) {
+    case SQUARE:
+        if (k < ref_period_samples / 2) {
             r = min_ref;
             k++;
-        } else if (k < 200) {
+        } else if (k < ref_period_samples) {
             r = max_ref;
             k++;
         } else {
             k = 0;
+            r = min_ref;
         }
-        // Comparator (Error)
+        break;
+    case TRIANGULAR:
+        if (k < ref_period_samples / 2) {
+            r = min_ref
+                + (max_ref - min_ref) * (float)k / (ref_period_samples / 2);
+            k++;
+        } else if (k < ref_period_samples) {
+            r = max_ref
+                - (max_ref - min_ref) * (float)(k - ref_period_samples / 2)
+                    / (ref_period_samples / 2);
+            k++;
+        } else {
+            k = 0;
+            r = min_ref;
+        }
+        break;
+    default:
+        break;
+    }
+
+    // Control
+    switch (selected_controller) {
+    case PI_ZOH:
+
+        // Error
         e = r - omega;
         // Control Law (Proportional + Integral)
         u = ((Kp + (Ki * Ts)) * e) - (Kp * e_old1) + u_old1;
@@ -113,23 +157,27 @@ void user_app_interrupt(void) {
         u_old1 = u;
         e_old1 = e;
         omega_old = omega;
-    } else if (sel_ctrl == 1) { // 2x lead compensators in w
-        // Reference
-        if (k < 200) {
-            r = min_ref;
-            k++;
-        } else if (k < 400) {
-            r = max_ref;
-            k++;
-        } else {
-            k = 0;
-        }
-        // Comparator (Error)
+        break;
+    case LC_W: // 2x lead compensators designed with the w transform and then
+               // transformed to z, plus 2x integrators in z.
+
+        // Error
         e = r - omega;
-        // Control Law (2 integrators plus 2 lead compensators)
-        u = (((a0 * e + a1 * e_old1 + a2 * e_old2 + a3 * e_old3 + a4 * e_old4)
-                - (b1 * u_old1 + b2 * u_old2 + b3 * u_old3 + b4 * u_old4)))
-            / b0;
+
+        // Control Law
+
+        // lead compensator 1
+        l1 = ((lcw_c1_a0 * e + lcw_c1_a1 * e_old1) - (lcw_c1_b1 * l_old1))
+            / lcw_c1_b0;
+        // lead compensator 2
+        l2 = ((lcw_c2_a0 * l1 + lcw_c2_a1 * l1_old1) - (lcw_c2_b1 * l1_old1))
+            / lcw_c2_b0;
+
+        // Double integrator
+        u = ((lcs_i_a0 * l + lcs_i_a1 * l_old1 + lcs_i_a2 * l_old2)
+                - (lcs_i_b1 * u_old1 + lcs_i_b2 * u_old2))
+            / lcs_i_b0;
+
         // Anti-windup
         if (u > 1) {
             u = 1;
@@ -141,24 +189,69 @@ void user_app_interrupt(void) {
         u_old3 = u_old2;
         u_old2 = u_old1;
         u_old1 = u;
+        l1_old2 = l1_old1;
+        l1_old1 = l1;
+        l2_old2 = l2_old1;
+        l2_old1 = l2;
         e_old4 = e_old3;
         e_old3 = e_old2;
         e_old2 = e_old1;
         e_old1 = e;
+        break;
+
+    case LC_S_TUS: // lead compensator plus 2 integrators designed in s and
+                   // discretized with Tustin method.
+
+        // Error
+        e = r - omega;
+
+        // Control Law
+
+        // lead compensator
+        l = ((lcs_c_a0 * e + lcs_c_a1 * e_old1) - (lcs_c_b1 * l_old1))
+            / lcs_c_b0;
+
+        // Double integrator
+        u = ((lcs_i_a0 * l + lcs_i_a1 * l_old1 + lcs_i_a2 * l_old2)
+                - (lcs_i_b1 * u_old1 + lcs_i_b2 * u_old2))
+            / lcs_i_b0;
+
+        // Anti-windup
+        if (u > 1) {
+            u = 1;
+        } else if (u < -1) {
+            u = -1;
+        }
+        // Save past values
+        u_old4 = u_old3;
+        u_old3 = u_old2;
+        u_old2 = u_old1;
+        u_old1 = u;
+        l_old2 = l_old1;
+        l_old1 = l;
+        e_old4 = e_old3;
+        e_old3 = e_old2;
+        e_old2 = e_old1;
+        e_old1 = e;
+        break;
+    default:
+        break;
     }
+
+    // Set PWM
     set_motor_pwm(u);
     printf("%0.2f, %0.2f, %0.8f\n", r, u, omega);
 
 #endif
-
+// Enable this to log data to stm32monitor
 #ifdef LOG_TO_STM32MONITOR
     trigger = 2;
     DumpTrace();
 #endif
+// Enable this to tune parameters with UART RX
 #ifdef PARAMETER_TUNING_MODE
     // UART Rx
     if (UART1_RX_DMA_Ready()) {
-
         UART1_RX_DMA_Read(rx_buffer);
         string_parser(rx_buffer);
         UART1_RX_DMA_StartReceive();
@@ -166,6 +259,12 @@ void user_app_interrupt(void) {
 #endif
 }
 
+/**
+ * @brief This function not used in this application, is purpose is to test the
+ * code in the main.c outside the systick interrupt.
+ * @param  None
+ * @retval None
+ */
 void user_app_main(void) {
     if (UART1_RX_DMA_Ready()) {
         UART1_RX_DMA_Read(rx_buffer);
@@ -174,6 +273,12 @@ void user_app_main(void) {
     }
 }
 
+/**
+ * @brief  This function sets the PWM duty cycle of the motor, the input value
+ * is limited to the range [-1, 1].
+ * @param  value: PWM duty cycle value.
+ * @retval None
+ */
 void set_motor_pwm(float value) {
     if (value >= 1) {
         TIM2->CCR1 = 1000;
@@ -190,6 +295,14 @@ void set_motor_pwm(float value) {
     }
 }
 
+/**
+ * @brief  This function reads the encoder value and calculates the motor
+ * angular velocity and position. The angular velocity is calculated in rev/s
+ * and stored in the global variable omega, the angular position is calculated
+ * in degrees and stored in the global variable theta.
+ * @param  None
+ * @retval None
+ */
 void get_motor_speed(void) {
 
     encoder_value = TIM3->CNT;
@@ -198,7 +311,7 @@ void get_motor_speed(void) {
     // Motor angular velocity in rev/s
     omega = (int)(encoder_value - encoder_value_old) * 200.0f / 28800.0f;
 
-    // Filter the ecoder_value jumpsdue to the counter overflow
+    // Filter the encoder_value jumps due to the counter overflow
     if ((encoder_value - encoder_value_old) > 1000) {
         omega = omega_old;
     }
@@ -211,6 +324,14 @@ void get_motor_speed(void) {
     omega_old = omega;
 }
 
+/**
+ * @brief  This function parses the input string from UART1 RX DMA, the string
+ * is tokenized with the delimiter "," and "=". so the user can send a string
+ * like "Kp=0.5,Ki=0.1,min_ref=0.7,max_ref=1.2,ctrl=0,ref=4\n" to change the
+ * parameters of the controller, the reference, and the controller type.
+ * @param  input: pointer to the input string.
+ * @retval None
+ */
 void string_parser(char* input) {
 
     char* token;
@@ -226,18 +347,20 @@ void string_parser(char* input) {
         char* name = strtok_r(token, "=", &saveptr2);
         char* value = strtok_r(NULL, "=", &saveptr2);
         if (name != NULL && value != NULL) {
-            if (!strcmp(name, "Kp")) {
-                Kp = atof(value);
-            } else if (!strcmp(name, "Ki")) {
-                Ki = atof(value);
+            if (!strcmp(name, "ctrl")) {
+                selected_controller = (enum controller_type)(atoi(value));
+            } else if (!strcmp(name, "ref_period")) {
+                selected_reference = (enum reference_type)(atoi(value));
+            } else if (!strcmp(name, "ref_period")) {
+                ref_period_seconds = (atoi(value));
+                ref_period_samples = (uint16_t)(ref_period_seconds / Ts);
             } else if (!strcmp(name, "min_ref")) {
                 min_ref = atof(value);
             } else if (!strcmp(name, "max_ref")) {
                 max_ref = atof(value);
-            } else if (!strcmp(name, "sel_ctrl")) {
-                sel_ctrl = atoi(value);
+
+                token = strtok_r(NULL, ",", &saveptr);
             }
-            token = strtok_r(NULL, ",", &saveptr);
         }
     }
 }
