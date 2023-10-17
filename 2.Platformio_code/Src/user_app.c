@@ -26,7 +26,7 @@ void user_app_init(void) {
     HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
     HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
-    // Config Systick interruption Frequency
+    // Config SysTick interruption Frequency
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq() / 200); // 5ms
 
 #ifdef PARAMETER_TUNING_MODE
@@ -78,7 +78,7 @@ void user_app_init(void) {
 }
 
 /**
- * @brief  This function is executed at each systick interruption, it contains
+ * @brief  This function is executed at each SysTick interruption, it contains
  * the encoder reading, the reference generator, the control algorithm, the pwm
  * set, the stm32monitor buffering, an UART parser for parameter tuning, and an
  * UART print for data visualization.
@@ -251,7 +251,7 @@ void user_app_interrupt(void) {
 
 /**
  * @brief This function not used in this application, is purpose is to test the
- * code in the main.c outside the systick interrupt.
+ * code in the main.c outside the SysTick interrupt.
  * @param  None
  * @retval None
  */
@@ -325,17 +325,17 @@ void get_motor_speed(void) {
 void string_parser(char* input) {
 
     char* token;
-    char* saveptr;
-    char* saveptr2;
+    char* save_ptr;
+    char* save_ptr2;
     // Tokenize the string with the delimiter ","
-    token = strtok_r(input, ",", &saveptr);
+    token = strtok_r(input, ",", &save_ptr);
     // strcpy(inner_string, token);
 
     // While for each token pair
     while (token != NULL) {
         // Tokenize the string with the delimiter "="
-        char* name = strtok_r(token, "=", &saveptr2);
-        char* value = strtok_r(NULL, "=", &saveptr2);
+        char* name = strtok_r(token, "=", &save_ptr2);
+        char* value = strtok_r(NULL, "=", &save_ptr2);
         if (name != NULL && value != NULL) {
             if (!strcmp(name, "ctrl_type")) {
                 selected_controller = (enum controller_type)(atoi(value));
@@ -349,7 +349,7 @@ void string_parser(char* input) {
             } else if (!strcmp(name, "max_ref")) {
                 max_ref = atof(value);
             }
-            token = strtok_r(NULL, ",", &saveptr);
+            token = strtok_r(NULL, ",", &save_ptr);
         }
     }
 }

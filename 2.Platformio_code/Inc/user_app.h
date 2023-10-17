@@ -59,7 +59,7 @@ enum controller_type { // Controller selector.
     PI_FOH = 1, // PI designed in s and discretized with FOH.
     PI_TUS = 2, // PI designed in s and discretized with Tustin.
     LC_W = 3, // 2 lead compensators plus 2 integrators designed in w domain.
-    LC_S_TUS = 4 // Lead compensator plus 2 integrators designed in s (TUSTIN).
+    LC_S_TUS = 4 // Lead compensator plus 2 integrators designed in s (Tustin).
 } selected_controller; // Control selector
 float u, u_old1, u_old2, u_old3, u_old4; // Control action and past samples.
 float e, e_old1, e_old2, e_old3, e_old4; // Error and past samples.
