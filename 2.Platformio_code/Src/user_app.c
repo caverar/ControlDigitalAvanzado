@@ -56,23 +56,23 @@ void user_app_init(void) {
     ref_period_samples = (uint16_t)(ref_period_seconds / Ts);
 
     // Controllers
-    selected_controller = PI_ZOH;
+    selected_controller = LC_W;
     // PI_ZOH
     Kp = 0.74773;
     Ki = 31.7677;
     // LC_W
-    l1 = 0.0, l1_old1 = 0.0, l1_old2 = 0.0;
-    l2 = 0.0, l2_old1 = 0.0, l2_old2 = 0.0;
-    lcw_c1_a0 = 21.66, lcw_c1_a1 = -20.6;
-    lcw_c1_b0 = 1.0, lcw_c1_b1 = 0.06731;
-    lcw_c2_a0 = 6.273, lcw_c2_a1 = -5.602;
-    lcw_c2_b0 = 1.0, lcw_c2_b1 = -0.4837;
-    lcw_i_a0 = 0.0, lcw_i_a1 = 0.0, lcw_i_a2 = 0.002;
-    lcw_i_b0 = 1.0, lcw_i_b1 = -2.0, lcw_i_b2 = 1.0;
+    l1 = 0, l1_old1 = 0, l1_old2 = 0;
+    l2 = 0, l2_old1 = 0, l2_old2 = 0;
+    lcw_c2_a0 = 6.2733, lcw_c2_a1 = -5.6021;
+    lcw_c2_b0 = 1, lcw_c2_b1 = -0.48367;
+    lcw_c1_a0 = 21.664, lcw_c1_a1 = -20.597;
+    lcw_c1_b0 = 1, lcw_c1_b1 = 0.067306;
+    lcw_i_a0 = 0, lcw_i_a1 = 0, lcw_i_a2 = 0.002;
+    lcw_i_b0 = 1, lcw_i_b1 = -2, lcw_i_b2 = 1;
     // LC_S_FOH
     l = 0, l_old1 = 0, l_old2 = 0;
-    lcs_c_a0 = 600.7, lcs_c_a1 = -593.7;
-    lcs_c_b0 = 1, lcs_c_b1 = -30.62;
+    lcs_c_a0 = 600.66, lcs_c_a1 = -593.72;
+    lcs_c_b0 = 1, lcs_c_b1 = -0.30617;
     lcs_i_a0 = 1.25e-05, lcs_i_a1 = 2.5e-05, lcs_i_a2 = 1.25e-05;
     lcs_i_b0 = 1, lcs_i_b1 = -2, lcs_i_b2 = 1;
 }
@@ -165,37 +165,32 @@ void user_app_interrupt(void) {
         e = r - omega;
 
         // Control Law
-
-        // lead compensator 1
-        l1 = ((lcw_c1_a0 * e + lcw_c1_a1 * e_old1) - (lcw_c1_b1 * l_old1))
-            / lcw_c1_b0;
         // lead compensator 2
-        l2 = ((lcw_c2_a0 * l1 + lcw_c2_a1 * l1_old1) - (lcw_c2_b1 * l1_old1))
+        l2 = ((lcw_c2_a0 * e + lcw_c2_a1 * e_old1) - (lcw_c2_b1 * l2_old1))
             / lcw_c2_b0;
 
-        // Double integrator
-        u = ((lcs_i_a0 * l + lcs_i_a1 * l_old1 + lcs_i_a2 * l_old2)
-                - (lcs_i_b1 * u_old1 + lcs_i_b2 * u_old2))
-            / lcs_i_b0;
+        // lead compensator 1
+        l1 = ((lcw_c1_a0 * l2 + lcw_c1_a1 * l2_old1) - (lcw_c1_b1 * l1_old1))
+            / lcw_c1_b0;
 
-        // Anti-windup
+        // Double integrator
+        u = ((lcw_i_a0 * l1 + lcw_i_a1 * l1_old1 + lcw_i_a2 * l1_old2)
+                - (lcw_i_b1 * u_old1 + lcw_i_b2 * u_old2))
+            / lcw_i_b0;
+
+        // Anti - windup
         if (u > 1) {
             u = 1;
         } else if (u < -1) {
             u = -1;
         }
         // Save past values
-        u_old4 = u_old3;
-        u_old3 = u_old2;
         u_old2 = u_old1;
         u_old1 = u;
         l1_old2 = l1_old1;
         l1_old1 = l1;
         l2_old2 = l2_old1;
         l2_old1 = l2;
-        e_old4 = e_old3;
-        e_old3 = e_old2;
-        e_old2 = e_old1;
         e_old1 = e;
         break;
 
@@ -223,15 +218,10 @@ void user_app_interrupt(void) {
             u = -1;
         }
         // Save past values
-        u_old4 = u_old3;
-        u_old3 = u_old2;
         u_old2 = u_old1;
         u_old1 = u;
         l_old2 = l_old1;
         l_old1 = l;
-        e_old4 = e_old3;
-        e_old3 = e_old2;
-        e_old2 = e_old1;
         e_old1 = e;
         break;
     default:
@@ -347,9 +337,9 @@ void string_parser(char* input) {
         char* name = strtok_r(token, "=", &saveptr2);
         char* value = strtok_r(NULL, "=", &saveptr2);
         if (name != NULL && value != NULL) {
-            if (!strcmp(name, "ctrl")) {
+            if (!strcmp(name, "ctrl_type")) {
                 selected_controller = (enum controller_type)(atoi(value));
-            } else if (!strcmp(name, "ref_period")) {
+            } else if (!strcmp(name, "ref_type")) {
                 selected_reference = (enum reference_type)(atoi(value));
             } else if (!strcmp(name, "ref_period")) {
                 ref_period_seconds = (atoi(value));
@@ -358,9 +348,8 @@ void string_parser(char* input) {
                 min_ref = atof(value);
             } else if (!strcmp(name, "max_ref")) {
                 max_ref = atof(value);
-
-                token = strtok_r(NULL, ",", &saveptr);
             }
+            token = strtok_r(NULL, ",", &saveptr);
         }
     }
 }
