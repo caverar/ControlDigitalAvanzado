@@ -1,0 +1,6 @@
+../Core/Src/dataAcq.c:216:20:readVar8bits	1
+../Core/Src/dataAcq.c:225:20:readVar16bits	1
+../Core/Src/dataAcq.c:235:20:readVar32bits	1
+../Core/Src/dataAcq.c:252:6:ClearBuffer	1
+../Core/Src/dataAcq.c:266:9:IsBufferEmpty	3
+../Core/Src/dataAcq.c:294:6:DumpTrace	37

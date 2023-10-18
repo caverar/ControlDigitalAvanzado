@@ -22,6 +22,7 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <dataAcq.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -282,6 +283,7 @@ void SysTick_Handler(void)
 	velold = vel;
 	e_old = e;
 	u_old = u;
+	DumpTrace();	// Send data to stm32CubeMonitor buffer
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */

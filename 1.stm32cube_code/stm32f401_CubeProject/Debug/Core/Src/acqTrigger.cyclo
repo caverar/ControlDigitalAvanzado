@@ -1,0 +1,11 @@
+../Core/Src/acqTrigger.c:84:6:AutoRearmTrigger	1
+../Core/Src/acqTrigger.c:97:6:SetTriggerOverflow	4
+../Core/Src/acqTrigger.c:122:6:AddingNewRecord	1
+../Core/Src/acqTrigger.c:134:6:AcqConfigureTrigger	10
+../Core/Src/acqTrigger.c:247:16:manageTrigEvent	2
+../Core/Src/acqTrigger.c:273:9:AcqEvaluateTrigger	21
+../Core/Src/acqTrigger.c:398:9:valAboveThreshold	7
+../Core/Src/acqTrigger.c:433:9:valBelowThreshold	7
+../Core/Src/acqTrigger.c:468:9:valEqualsThreshold	7
+../Core/Src/acqTrigger.c:503:9:evaluateEnd	10
+../Core/Src/acqTrigger.c:575:6:HostReadEvent	4
