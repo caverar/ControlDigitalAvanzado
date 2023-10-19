@@ -56,18 +56,24 @@ uint16_t ref_period_samples; // Reference period in samples of Ts
 // Controllers parameters -----------------------------------------------------
 enum controller_type { // Controller selector.
     PI_ZOH = 0, // PI designed in s and discretized with ZOH.
-    PI_FOH = 1, // PI designed in s and discretized with FOH.
-    PI_TUS = 2, // PI designed in s and discretized with Tustin.
+    PI_TUS = 1, // PI designed in s and discretized with Tustin.
+    PI_IIN = 2, // PI designed in s and discretized with impulse invariance.
     LC_W = 3, // 2 lead compensators plus 2 integrators designed in w domain.
     LC_S_TUS = 4 // Lead compensator plus 2 integrators designed in s (Tustin).
 } selected_controller; // Control selector
 float u, u_old1, u_old2, u_old3, u_old4; // Control action and past samples.
 float e, e_old1, e_old2, e_old3, e_old4; // Error and past samples.
-
 // Control parameters for PI_ZOH ----------------------------------------------
-float Kp; // Proportional gain
-float Ki; // Integral gain
-
+// float Kp; // Proportional gain
+// float Ki; // Integral gain
+float pi_zoh_a0, pi_zoh_a1; // PI numerator coefficients.
+float pi_zoh_b0, pi_zoh_b1; // PI denominator coefficients.
+// Control parameters for PI_TUS ----------------------------------------------
+float pi_tus_a0, pi_tus_a1; // PI numerator coefficients.
+float pi_tus_b0, pi_tus_b1; // PI denominator coefficients.
+// Control parameters for PI_IIN ----------------------------------------------
+float pi_iin_a0, pi_iin_a1, pi_iin_a2; // PI numerator coefficients.
+float pi_iin_b0, pi_iin_b1, pi_iin_b2; // PI denominator coefficients.
 // Control parameters for LC_W ------------------------------------------------
 float lcw_c1_a0, lcw_c1_a1; // lead compensator 1 numerator coefficients.
 float lcw_c1_b0, lcw_c1_b1; // lead compensator 1 denominator coefficients.

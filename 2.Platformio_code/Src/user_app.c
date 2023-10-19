@@ -58,8 +58,16 @@ void user_app_init(void) {
     // Controllers
     selected_controller = LC_W;
     // PI_ZOH
-    Kp = 0.74773;
-    Ki = 31.7677;
+    // Kp = 0.74773;
+    // Ki = 31.7677;
+    pi_zoh_a0 = 0.74773, pi_zoh_a1 = -0.58889;
+    pi_zoh_b0 = 1, pi_zoh_b1 = -1;
+    // PI_TUS
+    pi_tus_a0 = 0.82715, pi_tus_a1 = -0.66831;
+    pi_iin_b0 = 1, pi_iin_b1 = -1;
+    // PI_IIN
+    pi_iin_a0 = 0.15884, pi_iin_a1 = -4.9878e-17;
+    pi_iin_b0 = 1, pi_iin_b1 = -1;
     // LC_W
     l1 = 0, l1_old1 = 0, l1_old2 = 0;
     l2 = 0, l2_old1 = 0, l2_old2 = 0;
@@ -145,8 +153,9 @@ void user_app_interrupt(void) {
         // Error
         e = r - omega;
         // Control Law (Proportional + Integral)
-        u = ((Kp + (Ki * Ts)) * e) - (Kp * e_old1) + u_old1;
-
+        // u = ((Kp + (Ki * Ts)) * e) - (Kp * e_old1) + u_old1;
+        u = ((pi_zoh_a0 * e + pi_zoh_a1 * e_old1) - (pi_zoh_b1 * u_old1))
+            / pi_zoh_b0;
         // Anti-windup
         if (u > 1) {
             u = 1;
@@ -156,8 +165,44 @@ void user_app_interrupt(void) {
         // Save past values
         u_old1 = u;
         e_old1 = e;
-        omega_old = omega;
         break;
+
+    case PI_TUS:
+
+        // Error
+        e = r - omega;
+        // Control Law (Proportional + Integral)
+        u = ((pi_tus_a0 * e + pi_tus_a1 * e_old1) - (pi_tus_b1 * u_old1))
+            / pi_tus_b0;
+        // Anti-windup
+        if (u > 1) {
+            u = 1;
+        } else if (u < -1) {
+            u = -1;
+        }
+        // Save past values
+        u_old1 = u;
+        e_old1 = e;
+        break;
+
+    case PI_IIN:
+
+        // Error
+        e = r - omega;
+        // Control Law (Proportional + Integral)
+        u = ((pi_iin_a0 * e + pi_iin_a1 * e_old1) - (pi_iin_b1 * u_old1))
+            / pi_iin_b0;
+        // Anti-windup
+        if (u > 1) {
+            u = 1;
+        } else if (u < -1) {
+            u = -1;
+        }
+        // Save past values
+        u_old1 = u;
+        e_old1 = e;
+        break;
+
     case LC_W: // 2x lead compensators designed with the w transform and then
                // transformed to z, plus 2x integrators in z.
 
@@ -227,7 +272,7 @@ void user_app_interrupt(void) {
     default:
         break;
     }
-
+    omega_old = omega;
     // Set PWM
     set_motor_pwm(u);
     printf("%0.2f, %0.2f, %0.8f\n", r, u, omega);
