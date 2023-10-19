@@ -56,7 +56,7 @@ void user_app_init(void) {
     ref_period_samples = (uint16_t)(ref_period_seconds / Ts);
 
     // Controllers
-    selected_controller = LC_W;
+    selected_controller = PI_ZOH;
     // PI_ZOH
     // Kp = 0.74773;
     // Ki = 31.7677;
@@ -64,7 +64,7 @@ void user_app_init(void) {
     pi_zoh_b0 = 1, pi_zoh_b1 = -1;
     // PI_TUS
     pi_tus_a0 = 0.82715, pi_tus_a1 = -0.66831;
-    pi_iin_b0 = 1, pi_iin_b1 = -1;
+    pi_tus_b0 = 1, pi_tus_b1 = -1;
     // PI_IIN
     pi_iin_a0 = 0.15884, pi_iin_a1 = -4.9878e-17;
     pi_iin_b0 = 1, pi_iin_b1 = -1;
