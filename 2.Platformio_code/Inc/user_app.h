@@ -28,6 +28,7 @@ extern "C" {
 #define COUNTS_PER_REVOLUTION (float)(GEAR_RATIO * ENCODER_RESOLUTION)
 #define SAMPLE_TIME 0.005f // 5ms
 #define Ts SAMPLE_TIME
+#define SAMPLE_FREQUENCY 200.0f // 200Hz
 
 // Private variables **********************************************************
 

@@ -344,7 +344,8 @@ void get_motor_speed(void) {
     // Motor position in degrees
     theta = 360 * (float)((u_int32_t)encoder_value / COUNTS_PER_REVOLUTION);
     // Motor angular velocity in rev/s
-    omega = (int)(encoder_value - encoder_value_old) * 200.0f / 28800.0f;
+    omega = (int)(encoder_value - encoder_value_old) * SAMPLE_FREQUENCY
+        / COUNTS_PER_REVOLUTION;
 
     // Filter the encoder_value jumps due to the counter overflow
     if ((encoder_value - encoder_value_old) > 1000) {
