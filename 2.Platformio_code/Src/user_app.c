@@ -341,9 +341,9 @@ void set_motor_pwm(float value) {
 void get_motor_speed(void) {
 
     encoder_value = TIM3->CNT;
-    // Motor position in degrees
+    // Motor position in degrees: (counts/counts per rev) * 360(deg/rev)
     theta = 360 * (float)((u_int32_t)encoder_value / COUNTS_PER_REVOLUTION);
-    // Motor angular velocity in rev/s
+    // Motor angular velocity in rev/s: (delta counts/counts per rev) * (1/Ts)
     omega = (int)(encoder_value - encoder_value_old) * SAMPLE_FREQUENCY
         / COUNTS_PER_REVOLUTION;
 
