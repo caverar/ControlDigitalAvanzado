@@ -77,12 +77,24 @@ void user_app_init(void) {
     lcw_c1_b0 = 1, lcw_c1_b1 = 0.067306;
     lcw_i_a0 = 0, lcw_i_a1 = 0, lcw_i_a2 = 0.002;
     lcw_i_b0 = 1, lcw_i_b1 = -2, lcw_i_b2 = 1;
-    // LC_S_FOH
+    // LC_S_ZOH
     l = 0, l_old1 = 0, l_old2 = 0;
-    lcs_c_a0 = 600.66, lcs_c_a1 = -593.72;
-    lcs_c_b0 = 1, lcs_c_b1 = -0.30617;
-    lcs_i_a0 = 1.25e-05, lcs_i_a1 = 2.5e-05, lcs_i_a2 = 1.25e-05;
-    lcs_i_b0 = 1, lcs_i_b1 = -2, lcs_i_b2 = 1;
+    lcs_c_zoh_a0 = 914.42, lcs_c_zoh_a1 = -907.88;
+    lcs_c_zoh_b0 = 1, lcs_c_zoh_b1 = -0.34563;
+    lcs_i_zoh_a0 = 0, lcs_i_zoh_a1 = 2.5e-05, lcs_i_zoh_a2 = 2.5e-05;
+    lcs_i_zoh_b0 = 1, lcs_i_zoh_b1 = -2, lcs_i_zoh_b2 = 1;
+    // LC_S_TUS
+    l = 0, l_old1 = 0, l_old2 = 0;
+    lcs_c_tus_a0 = 600.66, lcs_c_tus_a1 = -593.72;
+    lcs_c_tus_b0 = 1, lcs_c_tus_b1 = -0.30617;
+    lcs_i_tus_a0 = 1.25e-05, lcs_i_tus_a1 = 2.5e-05, lcs_i_tus_a2 = 1.25e-05;
+    lcs_i_tus_b0 = 1, lcs_i_tus_b1 = -2, lcs_i_tus_b2 = 1;
+    // LC_S_BAP
+    l = 0, l_old1 = 0, l_old2 = 0;
+    lcs_c_bap_a0 = 448.53, lcs_c_bap_a1 = -443.38;
+    lcs_c_bap_b0 = 1, lcs_c_bap_b1 = -0.48487;
+    lcs_i_bap_a0 = 5e-05, lcs_i_bap_a1 = 0, lcs_i_bap_a2 = 0;
+    lcs_i_bap_b0 = 1, lcs_i_bap_b1 = -2, lcs_i_bap_b2 = 1;
 }
 
 /**
@@ -239,8 +251,8 @@ void user_app_interrupt(void) {
         e_old1 = e;
         break;
 
-    case LC_S_TUS: // lead compensator plus 2 integrators designed in s and
-                   // discretized with Tustin method.
+    case LC_S_ZOH: // lead compensator plus 2 integrators designed in s and
+                   // discretized with ZOH method.
 
         // Error
         e = r - omega;
@@ -248,13 +260,14 @@ void user_app_interrupt(void) {
         // Control Law
 
         // lead compensator
-        l = ((lcs_c_a0 * e + lcs_c_a1 * e_old1) - (lcs_c_b1 * l_old1))
-            / lcs_c_b0;
+        l = ((lcs_c_zoh_a0 * e + lcs_c_zoh_a1 * e_old1)
+                - (lcs_c_zoh_b1 * l_old1))
+            / lcs_c_zoh_b0;
 
         // Double integrator
-        u = ((lcs_i_a0 * l + lcs_i_a1 * l_old1 + lcs_i_a2 * l_old2)
-                - (lcs_i_b1 * u_old1 + lcs_i_b2 * u_old2))
-            / lcs_i_b0;
+        u = ((lcs_i_zoh_a0 * l + lcs_i_zoh_a1 * l_old1 + lcs_i_zoh_a2 * l_old2)
+                - (lcs_i_zoh_b1 * u_old1 + lcs_i_zoh_b2 * u_old2))
+            / lcs_i_zoh_b0;
 
         // Anti-windup
         if (u > 1) {
@@ -269,9 +282,75 @@ void user_app_interrupt(void) {
         l_old1 = l;
         e_old1 = e;
         break;
+
+    case LC_S_TUS: // lead compensator plus 2 integrators designed in s and
+                   // discretized with Tustin method.
+
+        // Error
+        e = r - omega;
+
+        // Control Law
+
+        // lead compensator
+        l = ((lcs_c_tus_a0 * e + lcs_c_tus_a1 * e_old1)
+                - (lcs_c_tus_b1 * l_old1))
+            / lcs_c_tus_b0;
+
+        // Double integrator
+        u = ((lcs_i_tus_a0 * l + lcs_i_tus_a1 * l_old1 + lcs_i_tus_a2 * l_old2)
+                - (lcs_i_tus_b1 * u_old1 + lcs_i_tus_b2 * u_old2))
+            / lcs_i_tus_b0;
+
+        // Anti-windup
+        if (u > 1) {
+            u = 1;
+        } else if (u < -1) {
+            u = -1;
+        }
+        // Save past values
+        u_old2 = u_old1;
+        u_old1 = u;
+        l_old2 = l_old1;
+        l_old1 = l;
+        e_old1 = e;
+        break;
+
+    case LC_S_BAP: // lead compensator plus 2 integrators designed in s and
+                   // discretized with Backward Approximation method.
+
+        // Error
+        e = r - omega;
+
+        // Control Law
+
+        // lead compensator
+        l = ((lcs_c_bap_a0 * e + lcs_c_bap_a1 * e_old1)
+                - (lcs_c_bap_b1 * l_old1))
+            / lcs_c_bap_b0;
+
+        // Double integrator
+        u = ((lcs_i_bap_a0 * l + lcs_i_bap_a1 * l_old1 + lcs_i_bap_a2 * l_old2)
+                - (lcs_i_bap_b1 * u_old1 + lcs_i_bap_b2 * u_old2))
+            / lcs_i_bap_b0;
+
+        // Anti-windup
+        if (u > 1) {
+            u = 1;
+        } else if (u < -1) {
+            u = -1;
+        }
+        // Save past values
+        u_old2 = u_old1;
+        u_old1 = u;
+        l_old2 = l_old1;
+        l_old1 = l;
+        e_old1 = e;
+        break;
+
     default:
         break;
     }
+
     omega_old = omega;
     // Set PWM
     set_motor_pwm(u);
