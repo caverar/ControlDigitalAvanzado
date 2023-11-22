@@ -50,16 +50,16 @@ void user_app_init(void) {
     // Reference parameters
     selected_reference = SQUARE;
     r = 0.0;
-    min_ref = 0.7f;
-    max_ref = 1.4f;
+    min_ref = 0.8f;
+    max_ref = 1.3f;
     ref_period_seconds = 4; // 0.25HZ same as simulation.
     ref_period_samples = (uint16_t)(ref_period_seconds / Ts);
 
     // Controllers
     selected_controller = PI_ZOH;
-    // PI_ZOH
     // Kp = 0.74773;
     // Ki = 31.7677;
+    // PI_ZOH
     pi_zoh_a0 = 0.74773, pi_zoh_a1 = -0.58889;
     pi_zoh_b0 = 1, pi_zoh_b1 = -1;
     // PI_TUS
