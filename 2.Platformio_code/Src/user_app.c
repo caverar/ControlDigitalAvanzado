@@ -131,12 +131,12 @@ void user_app_interrupt(void) {
         if (k < ref_period_samples / 2) {
             r = min_ref;
             k++;
-        } else if (k < ref_period_samples) {
+        } else if (k < ref_period_samples - 1) {
             r = max_ref;
             k++;
         } else {
             k = 0;
-            r = min_ref;
+            r = max_ref;
         }
         break;
     case TRIANGULAR:
@@ -144,14 +144,16 @@ void user_app_interrupt(void) {
             r = min_ref
                 + (max_ref - min_ref) * (float)k / (ref_period_samples / 2);
             k++;
-        } else if (k < ref_period_samples) {
+        } else if (k < ref_period_samples - 1) {
             r = max_ref
                 - (max_ref - min_ref) * (float)(k - ref_period_samples / 2)
                     / (ref_period_samples / 2);
             k++;
         } else {
             k = 0;
-            r = min_ref;
+            r = max_ref
+                - (max_ref - min_ref) * (float)(k - ref_period_samples / 2)
+                    / (ref_period_samples / 2);
         }
         break;
     default:
