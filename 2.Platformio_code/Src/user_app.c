@@ -150,10 +150,10 @@ void user_app_interrupt(void) {
                     / (ref_period_samples / 2);
             k++;
         } else {
-            k = 0;
             r = max_ref
                 - (max_ref - min_ref) * (float)(k - ref_period_samples / 2)
                     / (ref_period_samples / 2);
+            k = 0;
         }
         break;
     default:
