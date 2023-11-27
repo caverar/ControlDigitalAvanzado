@@ -356,7 +356,7 @@ void user_app_interrupt(void) {
     omega_old = omega;
     // Set PWM
     set_motor_pwm(u);
-    printf("%0.2f, %0.2f, %0.8f\n", r, u, omega);
+    printf("%0.4f, %0.4f, %0.8f\n", r, u, omega);
 
 #endif
 // Enable this to log data to stm32monitor
