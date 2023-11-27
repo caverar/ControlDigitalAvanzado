@@ -24,7 +24,7 @@ Pe=0
 PD=1366x768
 PR=
 Pf=0x0
-Ps=5463,0,0,3839,0,0
+Ps=5463,0,392,3839,0,0
 PM=1,1,1,1
 Pxi=81
 Px="3",0,0
@@ -719,7 +719,7 @@ QLI[2]=0
 0
 N.1="variable"*121x17<M>
 n="speed"
-N.2="Compound"*28x20#2,4
+N.2="Compound"*-21x20#2,4
 n="Speed_controller"
 Ms=5464,0,0,3840,0,0
 Ml=0
@@ -734,16 +734,16 @@ N.3="const"<0>*12x50<M>
 N.4="summingJunction"*19x48<M>
 N.5="gain"<50>*10x48<M>
 N.6="squareWave"<2;0.125>*6x48<MT3>
-N.7="userFunction"*30x2#0,0<U>
+N.7="userFunction"*-19x2#0,0<U>
 n="STM32DSP.tgtConfig"
-N.8="display"(2.8499999046326)*71x37
+N.8="display"(2.7599999904633)*22x37
 n=".84"
 Oe=6,4
 Ox=1
 Ov=1
 N.9="variable"*121x15<M>
 n="theta"
-N.10="userFunction"*3x65#0,2<UT1>
+N.10="userFunction"*-46x65#0,2<UT1>
 n="STM32DSP.readMonitorBuffer"
 DP=136
 DLI[19]=0
@@ -766,7 +766,7 @@ DLI[19]=0
 0
 0
 DLE
-N.11="userFunction"*83x65#0,2<UT1>
+N.11="userFunction"*34x65#0,2<UT1>
 n="STM32DSP.readMonitorBuffer"
 DP=136
 DLI[19]=0
@@ -789,7 +789,7 @@ DLI[19]=0
 0
 0
 DLE
-N.12="plot"*29x64*58x36<c>
+N.12="plot"*-20x64*58x36<c>
 pt="Position"
 px="Samples"
 py="deg"
@@ -811,7 +811,7 @@ pb.4=0,0
 pb.5=0,0
 pb.6=0,0
 pb.7=0,0
-N.13="userFunction"*26x29#2,5<U>
+N.13="userFunction"*-23x29#2,5<U>
 n="STM32DSP.DSP_Comm"
 DP=352
 DLI[6]=2
@@ -825,7 +825,7 @@ DLI[2]=0
 DLc[128]="$(InstallPath)\\cg\\state_feedback_5ms_80M.elf"
 DLc[128]="state_feedback_5ms_80M.elf"
 DLE
-N.14="plot"*144x2*69x26
+N.14="plot"*95x2*69x26
 pt="Position"
 px="Time (sec)"
 py="deg"
@@ -851,7 +851,7 @@ pb.7=0,0
 N.15="summingJunction"*65x7#4,1<M>
 N.16="variable"*38x13<M>
 n="theta"
-N.17="userFunction"*30x5#0,0<U>
+N.17="userFunction"*-19x5#0,0<U>
 n="STM32DSP.serialPortConfig"
 DP=64
 DLI[16]=0
@@ -894,7 +894,7 @@ N.26="const"<",">*46x61<MT10>
 N.27="const"<"\n">*45x65<MT10>
 N.28="const"<1>*67x58<M>
 N.29="convert"*40x55<MT10>
-N.30="plot"*109x64*54x36<c>
+N.30="plot"*60x64*54x36<c>
 pt="Speed"
 px="Samples"
 py="rpm"
@@ -917,7 +917,7 @@ pb.4=0,0
 pb.5=0,0
 pb.6=0,0
 pb.7=0,0
-N.31="plot"*144x30*69x28
+N.31="plot"*95x30*69x28
 pt="Speed"
 px="Time (sec)"
 py="rpm"
@@ -944,7 +944,7 @@ N.32="variable"*120x39<M>
 n="ref"
 N.33="variable"*120x54<M>
 n="out"
-N.34="plot"*213x30*74x28
+N.34="plot"*164x30*74x28
 pt="PWM"
 px="Time (sec)"
 py="Voltage Porcentage"
@@ -967,7 +967,7 @@ pb.4=0,0
 pb.5=0,0
 pb.6=0,0
 pb.7=0,0
-N.35="plot"*213x2*74x26
+N.35="plot"*164x2*74x26
 pt="Reference"
 px="Time (sec)"
 py="deg"
@@ -1024,10 +1024,10 @@ N.44="gain"<-2.7295>*51x7<M>
 N.45="gain"<-1.2244>*51x9<M>
 N.46="triangleWave"<0;0.125;50>*26x47<M>
 N.47="merge"*38x45<M>
-N.48="button"(0)*1x30<T3>
+N.48="button"(0)*-48x30<T3>
 Os=2
 Ot=0
-N.49="button"(1)*1x35<T3>
+N.49="button"(1)*-48x35<T3>
 Os=2
 Ot=0
 N.50="variable"*6x4<M>
@@ -1053,23 +1053,23 @@ N.63="label"*70x27<M>
 n="Pole Placement"
 N.64="wirePositioner"*35x9<M>
 N.65="wirePositioner"*35x24<M>
-N.66="comment"*2x24*15x5
+N.66="comment"*-47x24*15x5
 C="{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang2058{\\fonttbl{\\f0\\fnil\\fcharset0 Arial;}}
 \\viewkind4\\uc1\\pard\\fs22 ON:  LQR \\par
 OFF: P. P.\\par
 }
 "
-N.67="comment"*5x37*18x5
+N.67="comment"*-44x37*18x5
 C="{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang2058{\\fonttbl{\\f0\\fnil\\fcharset0 Arial;}}
 \\viewkind4\\uc1\\pard\\fs22 ON:  TRIANGLE\\par
 OFF: SQUARE\\par
 }
 "
-N.68="convert"*8x30<T3>
-N.69="convert"*8x35<T3>
-N.70="wirePositioner"*21x21<T3>
-N.71="wirePositioner"*23x25<T3>
-N.72="plot"*67x7*70x44
+N.68="convert"*-41x30<T3>
+N.69="convert"*-41x35<T3>
+N.70="wirePositioner"*-28x21<T3>
+N.71="wirePositioner"*-26x25<T3>
+N.72="plot"*18x7*70x44
 pt="ref and out"
 px="Time (sec)"
 py="deg"
@@ -1354,7 +1354,7 @@ DLI[19]=0
 0
 0
 DLE
-N.112="userFunction"*3x116#0,2<UT1>
+N.112="userFunction"*-46x116#0,2<UT1>
 n="STM32DSP.readMonitorBuffer"
 DP=136
 DLI[19]=0
@@ -1377,7 +1377,7 @@ DLI[19]=0
 0
 0
 DLE
-N.113="userFunction"*3x111#0,2<UT1>
+N.113="userFunction"*-46x111#0,2<UT1>
 n="STM32DSP.readMonitorBuffer"
 DP=136
 DLI[19]=0
@@ -1400,7 +1400,7 @@ DLI[19]=0
 0
 0
 DLE
-N.114="userFunction"*3x105#0,2<UT1>
+N.114="userFunction"*-46x105#0,2<UT1>
 n="STM32DSP.readMonitorBuffer"
 DP=136
 DLI[19]=0
@@ -1423,7 +1423,7 @@ DLI[19]=0
 0
 0
 DLE
-N.115="plot"*71x101*67x47<c>
+N.115="plot"*22x101*67x47<c>
 pt="Position"
 px="Samples"
 py="deg"
